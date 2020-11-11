@@ -10,6 +10,7 @@
 				<Footer />
 			</div>
 		</div>
+		<FlashMessage position="right top"></FlashMessage>
 	</div>
 </template>
 

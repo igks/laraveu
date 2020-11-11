@@ -25,6 +25,9 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.1",
-        "vue-router": "^3.4.9"
+        "@smartweb/vue-flash-message": "^0.6.10",
+        "bootstrap-vue": "^2.19.0",
+        "vue-router": "^3.4.9",
+        "vuex": "^3.5.1"
     }
 }

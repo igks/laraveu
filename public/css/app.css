@@ -6520,3 +6520,7 @@ a.nav-link.active {
   color: #fff !important;
 }
 
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+

@@ -21,7 +21,10 @@
         </button>
       </div>
       <div class="card-body">
-        <table class="table">
+        <div v-if="loading" class="text-center">
+          <img src="/img/loading.gif" alt="" width="150px" />
+        </div>
+        <table class="table" v-if="!loading">
           <thead>
             <tr>
               <td>#</td>
@@ -147,6 +150,7 @@ export default {
       edit: false,
       editId: null,
       modalTitle: "Modal Title",
+      loading: true,
     };
   },
   mounted() {
@@ -168,6 +172,7 @@ export default {
       try {
         const response = await categoryService.loadCategories();
         this.categories = response.data.data;
+        this.loading = false;
       } catch (error) {
         this.flashMessage.error({
           message: "Some error occurred, Please refresh!",

@@ -149,6 +149,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "category",
@@ -163,7 +166,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       errors: {},
       edit: false,
       editId: null,
-      modalTitle: "Modal Title"
+      modalTitle: "Modal Title",
+      loading: true
     };
   },
   mounted: function mounted() {
@@ -195,23 +199,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 3:
                 response = _context.sent;
                 this.categories = response.data.data;
-                _context.next = 10;
+                this.loading = false;
+                _context.next = 11;
                 break;
 
-              case 7:
-                _context.prev = 7;
+              case 8:
+                _context.prev = 8;
                 _context.t0 = _context["catch"](0);
                 this.flashMessage.error({
                   message: "Some error occurred, Please refresh!",
                   time: 5000
                 });
 
-              case 10:
+              case 11:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[0, 7]]);
+        }, _callee, this, [[0, 8]]);
       }));
 
       function loadCategories() {
@@ -502,62 +507,72 @@ var render = function() {
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "card-body" }, [
-          _c("table", { staticClass: "table" }, [
-            _vm._m(1),
-            _vm._v(" "),
-            _c(
-              "tbody",
-              _vm._l(_vm.categories, function(category, index) {
-                return _c("tr", { key: index }, [
-                  _c("td", [_vm._v(_vm._s(index + 1))]),
-                  _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(category.name))]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c("img", {
-                      staticClass: "table-image",
-                      attrs: {
-                        src:
-                          _vm.$store.state.serverPath +
-                          "/storage/" +
-                          category.image,
-                        alt: category.name
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary btn-sm",
-                        on: {
-                          click: function($event) {
-                            return _vm.editCategory(category)
+          _vm.loading
+            ? _c("div", { staticClass: "text-center" }, [
+                _c("img", {
+                  attrs: { src: "/img/loading.gif", alt: "", width: "150px" }
+                })
+              ])
+            : _vm._e(),
+          _vm._v(" "),
+          !_vm.loading
+            ? _c("table", { staticClass: "table" }, [
+                _vm._m(1),
+                _vm._v(" "),
+                _c(
+                  "tbody",
+                  _vm._l(_vm.categories, function(category, index) {
+                    return _c("tr", { key: index }, [
+                      _c("td", [_vm._v(_vm._s(index + 1))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(category.name))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("img", {
+                          staticClass: "table-image",
+                          attrs: {
+                            src:
+                              _vm.$store.state.serverPath +
+                              "/storage/" +
+                              category.image,
+                            alt: category.name
                           }
-                        }
-                      },
-                      [_c("span", { staticClass: "fa fa-edit" })]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-danger btn-sm",
-                        on: {
-                          click: function($event) {
-                            return _vm.deleteCategory(category)
-                          }
-                        }
-                      },
-                      [_c("span", { staticClass: "fa fa-trash" })]
-                    )
-                  ])
-                ])
-              }),
-              0
-            )
-          ])
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-primary btn-sm",
+                            on: {
+                              click: function($event) {
+                                return _vm.editCategory(category)
+                              }
+                            }
+                          },
+                          [_c("span", { staticClass: "fa fa-edit" })]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-danger btn-sm",
+                            on: {
+                              click: function($event) {
+                                return _vm.deleteCategory(category)
+                              }
+                            }
+                          },
+                          [_c("span", { staticClass: "fa fa-trash" })]
+                        )
+                      ])
+                    ])
+                  }),
+                  0
+                )
+              ])
+            : _vm._e()
         ])
       ]),
       _vm._v(" "),

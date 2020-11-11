@@ -131,6 +131,24 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "category",
@@ -141,13 +159,28 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         name: "",
         image: ""
       },
-      errors: {}
+      editCategoryData: {},
+      errors: {},
+      edit: false,
+      editId: null,
+      modalTitle: "Modal Title"
     };
   },
   mounted: function mounted() {
     this.loadCategories();
   },
   methods: {
+    resetForm: function resetForm() {
+      this.categoryData = {
+        name: "",
+        image: ""
+      };
+    },
+    createNewCategory: function createNewCategory() {
+      this.edit = false;
+      this.resetForm();
+      this.showNewCategoryModal();
+    },
     loadCategories: function () {
       var _loadCategories = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
         var response;
@@ -197,13 +230,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     hideNewCategoryModal: function hideNewCategoryModal() {
       this.$refs.newCategoryModal.hide();
+      this.resetForm();
     },
     showNewCategoryModal: function showNewCategoryModal() {
+      if (this.edit) {
+        this.modalTitle = "Edit Category";
+      } else {
+        this.modalTitle = "Add New Category";
+      }
+
       this.$refs.newCategoryModal.show();
     },
     createCategory: function () {
       var _createCategory = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2() {
-        var formData, response;
+        var formData, response, _response;
+
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
@@ -211,50 +252,93 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 formData = new FormData();
                 formData.append("name", this.categoryData.name);
                 formData.append("image", this.categoryData.image);
-                _context2.prev = 3;
-                _context2.next = 6;
+
+                if (!this.edit) {
+                  _context2.next = 25;
+                  break;
+                }
+
+                formData.append("_method", "put");
+                _context2.prev = 5;
+                _context2.next = 8;
+                return _services_category_service__WEBPACK_IMPORTED_MODULE_1__["updateCategory"](this.editId, formData);
+
+              case 8:
+                response = _context2.sent;
+                this.loadCategories();
+                this.hideNewCategoryModal();
+                this.flashMessage.success({
+                  message: "Category update successfully!",
+                  time: 5000
+                });
+                _context2.next = 23;
+                break;
+
+              case 14:
+                _context2.prev = 14;
+                _context2.t0 = _context2["catch"](5);
+                _context2.t1 = _context2.t0.response.status;
+                _context2.next = _context2.t1 === 422 ? 19 : 21;
+                break;
+
+              case 19:
+                this.errors = _context2.t0.response.data.errors;
+                return _context2.abrupt("break", 23);
+
+              case 21:
+                this.flashMessage.error({
+                  message: "Some error occurred, Please try again!",
+                  time: 5000
+                });
+                return _context2.abrupt("break", 23);
+
+              case 23:
+                _context2.next = 43;
+                break;
+
+              case 25:
+                _context2.prev = 25;
+                _context2.next = 28;
                 return _services_category_service__WEBPACK_IMPORTED_MODULE_1__["createCategory"](formData);
 
-              case 6:
-                response = _context2.sent;
-                this.categories.unshift(response.data);
+              case 28:
+                _response = _context2.sent;
+                this.loadCategories();
                 this.hideNewCategoryModal();
                 this.flashMessage.success({
                   message: "Category stored successfully!",
                   time: 5000
                 });
-                this.categoryData = {
-                  // this will empty the object
-                  name: "",
-                  image: ""
-                };
-                _context2.next = 22;
+                _context2.next = 43;
                 break;
 
-              case 13:
-                _context2.prev = 13;
-                _context2.t0 = _context2["catch"](3);
-                _context2.t1 = _context2.t0.response.status;
-                _context2.next = _context2.t1 === 422 ? 18 : 20;
+              case 34:
+                _context2.prev = 34;
+                _context2.t2 = _context2["catch"](25);
+                _context2.t3 = _context2.t2.response.status;
+                _context2.next = _context2.t3 === 422 ? 39 : 41;
                 break;
 
-              case 18:
-                this.errors = _context2.t0.response.data.errors;
-                return _context2.abrupt("break", 22);
+              case 39:
+                this.errors = _context2.t2.response.data.errors;
+                return _context2.abrupt("break", 43);
 
-              case 20:
+              case 41:
                 this.flashMessage.error({
                   message: "Some error occurred, Please try again!",
                   time: 5000
                 });
-                return _context2.abrupt("break", 22);
+                return _context2.abrupt("break", 43);
 
-              case 22:
+              case 43:
+                this.resetForm();
+
+              case 44:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[3, 13]]);
+        }, _callee2, this, [[5, 14], [25, 34]]);
       }));
 
       function createCategory() {
@@ -263,22 +347,69 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
       return createCategory;
     }(),
-    deleteCategory: function () {
-      var _deleteCategory = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(category) {
+    editCategory: function () {
+      var _editCategory = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(category) {
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
+                _context3.prev = 0;
+                _context3.next = 3;
+                return _services_category_service__WEBPACK_IMPORTED_MODULE_1__["getCategory"](category.id);
+
+              case 3:
+                response = _context3.sent;
+
+                if (response) {
+                  this.edit = true;
+                  this.editId = response.data.id;
+                  this.categoryData.name = response.data.name;
+                  this.categoryData.image = response.data.image;
+                  this.showNewCategoryModal();
+                }
+
+                _context3.next = 10;
+                break;
+
+              case 7:
+                _context3.prev = 7;
+                _context3.t0 = _context3["catch"](0);
+                this.flashMessage.error({
+                  message: _context3.t0.response.data.message,
+                  time: 5000
+                });
+
+              case 10:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this, [[0, 7]]);
+      }));
+
+      function editCategory(_x) {
+        return _editCategory.apply(this, arguments);
+      }
+
+      return editCategory;
+    }(),
+    deleteCategory: function () {
+      var _deleteCategory = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(category) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
                 if (window.confirm("Are you sure you want to delete ".concat(category.name))) {
-                  _context3.next = 2;
+                  _context4.next = 2;
                   break;
                 }
 
-                return _context3.abrupt("return");
+                return _context4.abrupt("return");
 
               case 2:
-                _context3.prev = 2;
-                _context3.next = 5;
+                _context4.prev = 2;
+                _context4.next = 5;
                 return _services_category_service__WEBPACK_IMPORTED_MODULE_1__["deleteCategory"](category.id);
 
               case 5:
@@ -289,26 +420,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   message: "Category deleted successfully!",
                   time: 5000
                 });
-                _context3.next = 12;
+                _context4.next = 12;
                 break;
 
               case 9:
-                _context3.prev = 9;
-                _context3.t0 = _context3["catch"](2);
+                _context4.prev = 9;
+                _context4.t0 = _context4["catch"](2);
                 this.flashMessage.error({
-                  message: _context3.t0.response.data.message,
+                  message: _context4.t0.response.data.message,
                   time: 5000
                 });
 
               case 12:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, this, [[2, 9]]);
+        }, _callee4, this, [[2, 9]]);
       }));
 
-      function deleteCategory(_x) {
+      function deleteCategory(_x2) {
         return _deleteCategory.apply(this, arguments);
       }
 
@@ -361,7 +492,7 @@ var render = function() {
             "button",
             {
               staticClass: "btn btn-primary btn-sm ml-auto",
-              on: { click: _vm.showNewCategoryModal }
+              on: { click: _vm.createNewCategory }
             },
             [
               _c("span", { staticClass: "fa fa-plus" }),
@@ -396,7 +527,18 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("td", [
-                    _vm._m(2, true),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-primary btn-sm",
+                        on: {
+                          click: function($event) {
+                            return _vm.editCategory(category)
+                          }
+                        }
+                      },
+                      [_c("span", { staticClass: "fa fa-edit" })]
+                    ),
                     _vm._v(" "),
                     _c(
                       "button",
@@ -423,7 +565,7 @@ var render = function() {
         "b-modal",
         {
           ref: "newCategoryModal",
-          attrs: { "hide-footer": "", title: "Add New Category" }
+          attrs: { "hide-footer": "", title: _vm.modalTitle }
         },
         [
           _c("div", { staticClass: "d-block" }, [
@@ -453,6 +595,7 @@ var render = function() {
                       }
                     ],
                     staticClass: "form-control",
+                    class: { "is-invalid": _vm.errors.name },
                     attrs: {
                       type: "text",
                       id: "name",
@@ -470,7 +613,7 @@ var render = function() {
                   }),
                   _vm._v(" "),
                   _vm.errors.name
-                    ? _c("div", { staticClass: "invalid-feedback" }, [
+                    ? _c("div", { staticClass: "invalid-feedback d-block" }, [
                         _vm._v(
                           "\n            " +
                             _vm._s(_vm.errors.name[0]) +
@@ -489,21 +632,39 @@ var render = function() {
                     ? _c("div", [
                         _c("img", {
                           ref: "newCategoryImageDispaly",
-                          staticClass: "w-150px",
+                          staticClass: "rounded-circle",
+                          staticStyle: { width: "100px" },
                           attrs: { src: "" }
+                        })
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.categoryData.image != "" && !_vm.categoryData.image.name
+                    ? _c("div", [
+                        _c("img", {
+                          staticClass: "rounded-circle",
+                          staticStyle: { width: "100px" },
+                          attrs: {
+                            src:
+                              _vm.$store.state.serverPath +
+                              "/storage/" +
+                              _vm.categoryData.image,
+                            alt: ""
+                          }
                         })
                       ])
                     : _vm._e(),
                   _vm._v(" "),
                   _c("input", {
                     ref: "newCategoryImage",
-                    staticClass: "form-control",
+                    staticClass: "form-control m-1",
+                    class: { "is-invalid": _vm.errors.name },
                     attrs: { type: "file", id: "image" },
                     on: { change: _vm.attachImage }
                   }),
                   _vm._v(" "),
                   _vm.errors.image
-                    ? _c("div", { staticClass: "invalid-feedback" }, [
+                    ? _c("div", { staticClass: "invalid-feedback d-block" }, [
                         _vm._v(
                           "\n            " +
                             _vm._s(_vm.errors.image[0]) +
@@ -530,7 +691,7 @@ var render = function() {
                     "button",
                     {
                       staticClass: "btn btn-primary",
-                      attrs: { type: "submit" }
+                      attrs: { type: "sumbit" }
                     },
                     [
                       _c("span", { staticClass: "fa fa-check" }),
@@ -572,14 +733,6 @@ var staticRenderFns = [
         _c("td", [_vm._v("Action")])
       ])
     ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("button", { staticClass: "btn btn-primary btn-sm" }, [
-      _c("span", { staticClass: "fa fa-edit" })
-    ])
   }
 ]
 render._withStripped = true
@@ -592,24 +745,32 @@ render._withStripped = true
 /*!***************************************************!*\
   !*** ./resources/js/services/category_service.js ***!
   \***************************************************/
-/*! exports provided: createCategory, loadCategories, deleteCategory */
+/*! exports provided: createCategory, updateCategory, loadCategories, getCategory, deleteCategory */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCategory", function() { return createCategory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateCategory", function() { return updateCategory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loadCategories", function() { return loadCategories; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCategory", function() { return getCategory; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteCategory", function() { return deleteCategory; });
 /* harmony import */ var _http_service__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./http_service */ "./resources/js/services/http_service.js");
 
 function createCategory(data) {
   return Object(_http_service__WEBPACK_IMPORTED_MODULE_0__["httpFile"])().post("/categories", data);
 }
+function updateCategory(id, data) {
+  return Object(_http_service__WEBPACK_IMPORTED_MODULE_0__["httpFile"])().post("/categories/".concat(id), data);
+}
 function loadCategories() {
   return Object(_http_service__WEBPACK_IMPORTED_MODULE_0__["http"])().get("/categories");
 }
+function getCategory(id) {
+  return Object(_http_service__WEBPACK_IMPORTED_MODULE_0__["http"])().get("/categories/".concat(id, "/edit"));
+}
 function deleteCategory(id) {
-  return Object(_http_service__WEBPACK_IMPORTED_MODULE_0__["http"])()["delete"]("categories/".concat(id));
+  return Object(_http_service__WEBPACK_IMPORTED_MODULE_0__["http"])()["delete"]("/categories/".concat(id));
 }
 
 /***/ }),

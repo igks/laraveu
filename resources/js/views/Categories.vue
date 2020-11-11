@@ -15,7 +15,7 @@
         </span>
         <button
           class="btn btn-primary btn-sm ml-auto"
-          v-on:click="showNewCategoryModal"
+          v-on:click="createNewCategory"
         >
           <span class="fa fa-plus"></span> Create New
         </button>
@@ -42,7 +42,10 @@
                 />
               </td>
               <td>
-                <button class="btn btn-primary btn-sm">
+                <button
+                  class="btn btn-primary btn-sm"
+                  v-on:click="editCategory(category)"
+                >
                   <span class="fa fa-edit"></span>
                 </button>
                 <!-- added deleteCategory method in below button click -->
@@ -59,7 +62,7 @@
       </div>
     </div>
 
-    <b-modal ref="newCategoryModal" hide-footer title="Add New Category">
+    <b-modal ref="newCategoryModal" hide-footer :title="modalTitle">
       <div class="d-block">
         <form v-on:submit.prevent="createCategory">
           <div class="form-group">
@@ -70,24 +73,39 @@
               class="form-control"
               id="name"
               placeholder="Enter category name"
+              :class="{ 'is-invalid': errors.name }"
             />
-            <div class="invalid-feedback" v-if="errors.name">
+            <div v-if="errors.name" class="invalid-feedback d-block">
               {{ errors.name[0] }}
             </div>
           </div>
           <div class="form-group">
             <label for="image">Choose an image</label>
             <div v-if="categoryData.image.name">
-              <img src="" ref="newCategoryImageDispaly" class="w-150px" />
+              <img
+                src=""
+                ref="newCategoryImageDispaly"
+                class="rounded-circle"
+                style="width: 100px"
+              />
+            </div>
+            <div v-if="categoryData.image != '' && !categoryData.image.name">
+              <img
+                :src="`${$store.state.serverPath}/storage/${categoryData.image}`"
+                alt=""
+                class="rounded-circle"
+                style="width: 100px"
+              />
             </div>
             <input
               type="file"
               v-on:change="attachImage"
               ref="newCategoryImage"
-              class="form-control"
+              class="form-control m-1"
               id="image"
+              :class="{ 'is-invalid': errors.name }"
             />
-            <div class="invalid-feedback" v-if="errors.image">
+            <div class="invalid-feedback d-block" v-if="errors.image">
               {{ errors.image[0] }}
             </div>
           </div>
@@ -101,7 +119,7 @@
             >
               Cancel
             </button>
-            <button type="submit" class="btn btn-primary">
+            <button type="sumbit" class="btn btn-primary">
               <span class="fa fa-check"></span> Save
             </button>
           </div>
@@ -113,6 +131,7 @@
 
 <script>
 import * as categoryService from "../services/category_service";
+
 export default {
   name: "category",
   data() {
@@ -122,14 +141,29 @@ export default {
         name: "",
         image: "",
       },
+      editCategoryData: {},
 
       errors: {},
+      edit: false,
+      editId: null,
+      modalTitle: "Modal Title",
     };
   },
   mounted() {
     this.loadCategories();
   },
   methods: {
+    resetForm() {
+      this.categoryData = {
+        name: "",
+        image: "",
+      };
+    },
+    createNewCategory() {
+      this.edit = false;
+      this.resetForm();
+      this.showNewCategoryModal();
+    },
     loadCategories: async function () {
       try {
         const response = await categoryService.loadCategories();
@@ -156,40 +190,86 @@ export default {
     },
     hideNewCategoryModal() {
       this.$refs.newCategoryModal.hide();
+      this.resetForm();
     },
     showNewCategoryModal() {
+      if (this.edit) {
+        this.modalTitle = "Edit Category";
+      } else {
+        this.modalTitle = "Add New Category";
+      }
       this.$refs.newCategoryModal.show();
     },
     createCategory: async function () {
       let formData = new FormData();
       formData.append("name", this.categoryData.name);
       formData.append("image", this.categoryData.image);
-
+      if (this.edit) {
+        formData.append("_method", "put");
+        try {
+          const response = await categoryService.updateCategory(
+            this.editId,
+            formData
+          );
+          this.loadCategories();
+          this.hideNewCategoryModal();
+          this.flashMessage.success({
+            message: "Category update successfully!",
+            time: 5000,
+          });
+        } catch (error) {
+          switch (error.response.status) {
+            case 422:
+              this.errors = error.response.data.errors;
+              break;
+            default:
+              this.flashMessage.error({
+                message: "Some error occurred, Please try again!",
+                time: 5000,
+              });
+              break;
+          }
+        }
+      } else {
+        try {
+          const response = await categoryService.createCategory(formData);
+          this.loadCategories();
+          this.hideNewCategoryModal();
+          this.flashMessage.success({
+            message: "Category stored successfully!",
+            time: 5000,
+          });
+        } catch (error) {
+          switch (error.response.status) {
+            case 422:
+              this.errors = error.response.data.errors;
+              break;
+            default:
+              this.flashMessage.error({
+                message: "Some error occurred, Please try again!",
+                time: 5000,
+              });
+              break;
+          }
+        }
+      }
+      this.resetForm();
+    },
+    editCategory: async function (category) {
       try {
-        const response = await categoryService.createCategory(formData);
-        this.categories.unshift(response.data);
-        this.hideNewCategoryModal();
-        this.flashMessage.success({
-          message: "Category stored successfully!",
+        const response = await categoryService.getCategory(category.id);
+        if (response) {
+          this.edit = true;
+          this.editId = response.data.id;
+          this.categoryData.name = response.data.name;
+          this.categoryData.image = response.data.image;
+          this.showNewCategoryModal();
+        }
+      } catch (error) {
+        this.flashMessage.error({
+          message: error.response.data.message,
           time: 5000,
         });
-        this.categoryData = {
-          // this will empty the object
-          name: "",
-          image: "",
-        };
-      } catch (error) {
-        switch (error.response.status) {
-          case 422:
-            this.errors = error.response.data.errors;
-            break;
-          default:
-            this.flashMessage.error({
-              message: "Some error occurred, Please try again!",
-              time: 5000,
-            });
-            break;
-        }
       }
     },
     deleteCategory: async function (category) {

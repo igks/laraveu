@@ -78,7 +78,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return response()->json($category, 200); 
     }
 
     /**
@@ -88,9 +88,25 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update( Category $category, Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|min:3',
+            'image' => 'required|image|mimes:jpeg,png,jpg'
+        ]);
+
+        $category->name = $request->name;
+        $path = $request->file('image')->store('categories_images');
+        $category->image = $path;
+        
+        if ($category->save()) {
+            return response()->json($category, 200);
+        } else {
+            return response()->json([
+                'message' => 'Some error occurred, please try again',
+                'status_code' => 500
+            ], 500);
+        }
     }
 
     /**
